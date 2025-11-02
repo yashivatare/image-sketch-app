@@ -1,0 +1,10 @@
+streamlit
+diffusers==0.35.2
+peft==0.17.1
+torch==2.9.0+cu126
+torchvision==0.24.0+cu126
+opencv-python==4.12.0.88
+pillow==11.3.0
+numpy==2.1.3
+safetensors==0.6.2
+transformers==4.57.1
