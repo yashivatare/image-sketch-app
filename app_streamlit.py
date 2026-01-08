@@ -9,12 +9,10 @@ from sketch_generator import SketchGenerator
 
 @st.cache_resource(show_spinner="Loading AI model... this can take a minute on first run.")
 def load_sketch_generator() -> SketchGenerator:
-    """Loads and caches the SketchGenerator model."""
     return SketchGenerator()
 
 
 def read_uploaded_image(uploaded_file) -> Optional[Image.Image]:
-    """Reads an uploaded file and converts it to a PIL Image."""
     if uploaded_file is None:
         return None
     bytes_data = uploaded_file.getvalue()
@@ -36,7 +34,6 @@ def main() -> None:
     with left_col:
         uploaded = st.file_uploader("Upload an image", type=["png", "jpg", "jpeg", "webp"])
         
-        # --- CHANGE: Removed hardcoded 'value' and replaced with 'placeholder' ---
         prompt = st.text_input(
             "Style prompt",
             placeholder="e.g., A vibrant cartoon, Pixar style OR charcoal sketch, grainy",
