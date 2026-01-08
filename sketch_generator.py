@@ -6,7 +6,7 @@ import cv2
 import numpy as np
 import torch
 from PIL import Image
-# --- CHANGE: Import the AutoencoderKL class for memory optimization ---
+
 from diffusers import ControlNetModel, StableDiffusionControlNetImg2ImgPipeline, LCMScheduler, AutoencoderKL
 
 class SketchGenerator:
@@ -25,9 +25,7 @@ class SketchGenerator:
 
         dtype = torch.float16 if self.device.type == "cuda" else torch.float32
 
-        # --- CHANGE: Load a smaller, more memory-efficient VAE ---
-        # This is a key fix for low VRAM GPUs.
-        # CORRECT LINE
+        
         vae = AutoencoderKL.from_pretrained(
             "stabilityai/sd-vae-ft-mse",
             torch_dtype=dtype
@@ -41,7 +39,7 @@ class SketchGenerator:
         pipe = StableDiffusionControlNetImg2ImgPipeline.from_pretrained(
             "runwayml/stable-diffusion-v1-5",
             controlnet=controlnet,
-            vae=vae,  # --- CHANGE: Pass the efficient VAE into the pipeline ---
+            vae=vae,  
             torch_dtype=dtype,
             safety_checker=None,
         )
@@ -52,7 +50,6 @@ class SketchGenerator:
         
         pipe.enable_model_cpu_offload()
         
-        # VAE slicing is still beneficial even with CPU offload
         if self.device.type == "cuda":
             pipe.enable_vae_slicing()
 
@@ -60,7 +57,6 @@ class SketchGenerator:
 
 
     def _create_canny_conditioning_image(self, image: Image.Image) -> Image.Image:
-        """Creates a clean Canny edge map."""
         rgb_array = np.array(image.convert("RGB"))
         gray_array = cv2.cvtColor(rgb_array, cv2.COLOR_RGB2GRAY)
         blurred = cv2.GaussianBlur(gray_array, (3, 3), 0)
@@ -83,7 +79,6 @@ class SketchGenerator:
     ) -> str:
         base_image = Image.open(input_image).convert("RGB") if isinstance(input_image, str) else input_image.convert("RGB")
         
-        # --- CHANGE: Add a resolution cap to prevent crashes from huge images ---
         MAX_RESOLUTION = 1024
         if max(base_image.width, base_image.height) > MAX_RESOLUTION:
             base_image.thumbnail((MAX_RESOLUTION, MAX_RESOLUTION))
